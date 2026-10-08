@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif 40 Soal Keliling Bangun Datar SD Kelas 4</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f1f5f9;
+        }
+        h1, h2, h3, .font-fun {
+            font-family: 'Fredoka', cursive;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.12), 0 8px 10px -6px rgba(99, 102, 241, 0.08);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .num-btn.correct {
+            background-color: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        .num-btn.wrong {
+            background-color: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        .num-btn.active {
+            ring: 3px solid #6366f1;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Utama -->
+    <header class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-indigo-600 p-2.5 rounded-2xl text-2xl shadow-md">
+                    📐
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-2xl font-bold tracking-wide">Kuis Super 40 Soal: Keliling Bangun Datar</h1>
+                    <p class="text-xs text-indigo-100">Matematika SD Kelas 4 - Mode Latihan Otomatis Tersimpan 💾</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <span id="save-status-badge" class="bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-xs flex items-center shadow animate-pulse">
+                    💾 Otomatis Tersimpan
+                </span>
+                <button onclick="openResetModal()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold px-3 py-1 rounded-xl text-xs transition shadow">
+                    🔄 Reset Kuis
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Statistik Kuis -->
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-[60px] z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-2">
+                <span class="text-xs text-indigo-700 font-bold block">Terjawab</span>
+                <span id="stat-answered" class="text-xl font-black text-indigo-900">0 / 40</span>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-2">
+                <span class="text-xs text-emerald-700 font-bold block">Benar</span>
+                <span id="stat-correct" class="text-xl font-black text-emerald-800">0</span>
+            </div>
+            <div class="bg-rose-50 border border-rose-100 rounded-2xl p-2">
+                <span class="text-xs text-rose-700 font-bold block">Salah</span>
+                <span id="stat-wrong" class="text-xl font-black text-rose-800">0</span>
+            </div>
+            <div class="bg-amber-50 border border-amber-100 rounded-2xl p-2">
+                <span class="text-xs text-amber-700 font-bold block">Nilai Sementara</span>
+                <span id="stat-score" class="text-xl font-black text-amber-900">0.0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Sidebar Peta Nomor Soal (Komputer & Tablet) -->
+        <aside class="lg:col-span-4 space-y-4">
+            <div class="bg-white rounded-3xl p-5 custom-shadow border border-slate-200 sticky top-[150px]">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="font-bold text-slate-800 text-base">🗺️ Peta Nomor Soal</h2>
+                    <span class="text-xs text-slate-500">Klik untuk lompat</span>
+                </div>
+
+                <!-- Filter Bangun Datar -->
+                <div class="mb-4">
+                    <label class="text-xs font-bold text-slate-600 mb-1 block">Filter Jenis Bangun:</label>
+                    <select id="filter-shape" onchange="filterQuestions()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500">
+                        <option value="all">🌟 Semua Bangun Datar (40 Soal)</option>
+                        <option value="Persegi">⬛ Persegi (6 Soal)</option>
+                        <option value="Persegi Panjang">▭ Persegi Panjang (6 Soal)</option>
+                        <option value="Segitiga">🔺 Segitiga (6 Soal)</option>
+                        <option value="Jajar Genjang">▰ Jajar Genjang (5 Soal)</option>
+                        <option value="Trapesium">⏢ Trapesium (5 Soal)</option>
+                        <option value="Layang-Layang">🪁 Layang-Layang (6 Soal)</option>
+                        <option value="Belah Ketupat">🔷 Belah Ketupat (6 Soal)</option>
+                    </select>
+                </div>
+
+                <!-- Grid Nomor 1 - 40 -->
+                <div id="number-grid" class="grid grid-cols-5 gap-2 max-h-[320px] overflow-y-auto p-1">
+                    <!-- Dynamic buttons generated by JS -->
+                </div>
+
+                <!-- Mascot Greeting Box -->
+                <div class="mt-5 bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200 rounded-2xl p-3 flex items-center gap-3">
+                    <span class="text-3xl">🐰</span>
+                    <div>
+                        <h4 class="text-xs font-bold text-amber-900">Kiko si Kelinci</h4>
+                        <p id="mascot-text" class="text-[11px] text-amber-800 leading-tight">"Semangat teman! Jawabanmu otomatis tersimpan secara real-time!"</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Area Kartu Soal Utama -->
+        <section class="lg:col-span-8 space-y-6">
+            <div id="question-card" class="bg-white rounded-3xl p-6 md:p-8 custom-shadow border border-slate-200 relative">
+                
+                <!-- Tag Header Soal -->
+                <div class="flex justify-between items-center border-b pb-4 mb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="q-number-tag" class="bg-indigo-600 text-white font-bold text-sm px-3 py-1 rounded-full">Soal #1</span>
+                        <span id="q-category-tag" class="bg-indigo-100 text-indigo-800 font-bold text-xs px-3 py-1 rounded-full">Persegi</span>
+                    </div>
+                    <span id="q-status-tag" class="text-xs font-bold text-slate-400">Belum Dijawab</span>
+                </div>
+
+                <!-- Teks Soal -->
+                <div class="space-y-4">
+                    <p id="q-text" class="text-slate-800 text-base md:text-lg font-medium leading-relaxed">
+                        Loading soal...
+                    </p>
+
+                    <!-- Ilustrasi Visual SVG jika ada -->
+                    <div id="q-svg-container" class="flex justify-center my-3 min-h-[120px] items-center">
+                        <!-- SVG injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Opsi Jawaban (A, B, C, D) -->
+                <div class="mt-6 space-y-3" id="options-container">
+                    <!-- Options buttons injected dynamically -->
+                </div>
+
+                <!-- Box Umpan Balik Instan + Cara Menghitung -->
+                <div id="feedback-box" class="hidden mt-6 p-5 rounded-2xl text-sm font-medium border space-y-2">
+                    <!-- Dynamic feedback content -->
+                </div>
+
+                <!-- Tombol Navigasi Bawah -->
+                <div class="flex justify-between items-center mt-8 pt-4 border-t border-slate-100">
+                    <button id="btn-prev" onclick="changeQuestion(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-sm transition">
+                        ⬅️ Soal Sebelumnya
+                    </button>
+                    <button id="btn-next" onclick="changeQuestion(1)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow">
+                        Soal Berikutnya ➡️
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Dialog Reset Konfirmasi -->
+    <div id="reset-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
+            <div class="text-5xl">⚠️</div>
+            <h3 class="text-xl font-bold text-slate-900">Reset Semua Jawaban?</h3>
+            <p class="text-sm text-slate-600">Semua riwayat jawaban dan skor yang tersimpan akan dihapus dari perangkat ini. Apakah kamu yakin ingin mengulang dari awal?</p>
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeResetModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-sm transition">Batal</button>
+                <button onclick="confirmReset()" class="w-1/2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-sm transition">Ya, Reset Kuis</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-center py-6 border-t border-slate-800 text-xs mt-10">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-medium">Kuis Interaktif 40 Soal Keliling Bangun Datar - Matematika SD Kelas 4</p>
+            <p class="mt-1 text-slate-500">Dilengkapi Penyimpanan Otomatis (Offline-Resilient LocalStorage) & Umpan Balik Instan ✨</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic Section -->
+    <script>
+        /* 
+         * Dataset 40 Soal Keliling Bangun Datar
+         * Kunci Jawaban diatur seimbang (10 Opsi A, 10 Opsi B, 10 Opsi C, 10 Opsi D)
+         * 0 = A, 1 = B, 2 = C, 3 = D
+         */
+        const questions = [
+            // 1 - 6: PERSEGI
+            {
+                id: 1,
+                category: "Persegi",
+                text: "Sebuah papan catur mini berbentuk persegi memiliki panjang sisi **9 cm**. Berapakah keliling papan catur tersebut?",
+                options: ["18 cm", "27 cm", "36 cm", "81 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><rect x="20" y="20" width="80" height="80" fill="#6366f1" fill-opacity="0.15" stroke="#6366f1" stroke-width="4" rx="6"/><text x="60" y="14" text-anchor="middle" class="text-[11px] font-bold fill-indigo-600">9 cm</text><text x="108" y="65" text-anchor="start" class="text-[11px] font-bold fill-indigo-600">9 cm</text></svg>`,
+                explanation: "Keliling Persegi = 4 × sisi = 4 × 9 cm = **36 cm**."
+            },
+            {
+                id: 2,
+                category: "Persegi",
+                text: "Suatu persegi memiliki keliling **48 cm**. Berapakah panjang sisi persegi tersebut?",
+                options: ["12 cm", "14 cm", "16 cm", "24 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><rect x="25" y="25" width="70" height="70" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-width="4" rx="6"/><text x="60" y="65" text-anchor="middle" class="text-xs font-bold fill-blue-600">K = 48 cm</text></svg>`,
+                explanation: "Sisi = Keliling ÷ 4 = 48 cm ÷ 4 = **12 cm**."
+            },
+            {
+                id: 3,
+                category: "Persegi",
+                text: "Taman bunga sekolah berbentuk persegi dengan panjang sisi **15 meter**. Pak Tani ingin memasang kawat hias mengelilingi taman tersebut. Panjang kawat yang dibutuhkan adalah...",
+                options: ["45 m", "60 m", "75 m", "225 m"],
+                correctIndex: 1, // B
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><rect x="20" y="20" width="80" height="80" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="4" rx="6"/><text x="60" y="14" text-anchor="middle" class="text-[11px] font-bold fill-emerald-600">15 m</text></svg>`,
+                explanation: "Keliling = 4 × sisi = 4 × 15 m = **60 m**."
+            },
+            {
+                id: 4,
+                category: "Persegi",
+                text: "Eko memiliki kertas lipat persegi dengan panjang sisi **20 cm**. Keliling kertas lipat tersebut adalah...",
+                options: ["40 cm", "50 cm", "60 cm", "80 cm"],
+                correctIndex: 3, // D
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><rect x="20" y="20" width="80" height="80" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="4" rx="6"/><text x="60" y="14" text-anchor="middle" class="text-[11px] font-bold fill-amber-600">20 cm</text></svg>`,
+                explanation: "Keliling = 4 × sisi = 4 × 20 cm = **80 cm**."
+            },
+            {
+                id: 5,
+                category: "Persegi",
+                text: "Sebuah ubin lantai berbentuk persegi memiliki panjang sisi **30 cm**. Berapakah keliling ubin tersebut?",
+                options: ["120 cm", "90 cm", "60 cm", "150 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><rect x="20" y="20" width="80" height="80" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-width="4" rx="6"/><text x="60" y="14" text-anchor="middle" class="text-[11px] font-bold fill-purple-600">30 cm</text></svg>`,
+                explanation: "Keliling = 4 × sisi = 4 × 30 cm = **120 cm**."
+            },
+            {
+                id: 6,
+                category: "Persegi",
+                text: "Ibu ingin memasang pita renda di tepi taplak meja persegi yang sisinya **85 cm**. Panjang pita minimal yang harus dibeli Ibu adalah...",
+                options: ["170 cm", "255 cm", "340 cm", "400 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><rect x="20" y="20" width="80" height="80" fill="#ec4899" fill-opacity="0.15" stroke="#ec4899" stroke-width="4" rx="6"/><text x="60" y="14" text-anchor="middle" class="text-[11px] font-bold fill-pink-600">85 cm</text></svg>`,
+                explanation: "Keliling = 4 × 85 cm = **340 cm**."
+            },
+
+            // 7 - 12: PERSEGI PANJANG
+            {
+                id: 7,
+                category: "Persegi Panjang",
+                text: "Suatu persegi panjang memiliki **panjang = 14 cm** dan **lebar = 8 cm**. Berapakah keliling persegi panjang tersebut?",
+                options: ["22 cm", "44 cm", "56 cm", "112 cm"],
+                correctIndex: 1, // B
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><rect x="20" y="20" width="120" height="60" fill="#6366f1" fill-opacity="0.15" stroke="#6366f1" stroke-width="4" rx="6"/><text x="80" y="14" text-anchor="middle" class="text-[11px] font-bold fill-indigo-600">14 cm</text><text x="148" y="55" text-anchor="start" class="text-[11px] font-bold fill-indigo-600">8 cm</text></svg>`,
+                explanation: "Keliling = 2 × (panjang + lebar) = 2 × (14 + 8) = 2 × 22 = **44 cm**."
+            },
+            {
+                id: 8,
+                category: "Persegi Panjang",
+                text: "Lapangan basket sekolah memiliki ukuran **panjang 25 meter** dan **lebar 15 meter**. Siswa berlari mengelilingi lapangan 1 putaran. Jarak yang ditempuh adalah...",
+                options: ["40 m", "50 m", "70 m", "80 m"],
+                correctIndex: 3, // D
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><rect x="20" y="20" width="120" height="60" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="4" rx="6"/><text x="80" y="14" text-anchor="middle" class="text-[11px] font-bold fill-emerald-600">25 m</text><text x="148" y="55" text-anchor="start" class="text-[11px] font-bold fill-emerald-600">15 m</text></svg>`,
+                explanation: "Keliling = 2 × (25 + 15) = 2 × 40 = **80 meter**."
+            },
+            {
+                id: 9,
+                category: "Persegi Panjang",
+                text: "Sebuah persegi panjang memiliki **keliling = 50 cm** dan **panjang = 15 cm**. Berapakah lebar persegi panjang tersebut?",
+                options: ["10 cm", "12.5 cm", "20 cm", "35 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><rect x="20" y="20" width="120" height="60" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-width="4" rx="6"/><text x="80" y="55" text-anchor="middle" class="text-xs font-bold fill-blue-600">K = 50 cm, p = 15 cm</text></svg>`,
+                explanation: "Panjang + Lebar = Keliling ÷ 2 = 50 ÷ 2 = 25 cm. Lebar = 25 - 15 = **10 cm**."
+            },
+            {
+                id: 10,
+                category: "Persegi Panjang",
+                text: "Bingkai foto keluarga berukuran **panjang 18 cm** dan **lebar 12 cm**. Keliling bingkai foto itu adalah...",
+                options: ["30 cm", "48 cm", "60 cm", "216 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><rect x="20" y="20" width="120" height="60" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="4" rx="6"/><text x="80" y="14" text-anchor="middle" class="text-[11px] font-bold fill-amber-600">18 cm</text><text x="148" y="55" text-anchor="start" class="text-[11px] font-bold fill-amber-600">12 cm</text></svg>`,
+                explanation: "Keliling = 2 × (18 + 12) = 2 × 30 = **60 cm**."
+            },
+            {
+                id: 11,
+                category: "Persegi Panjang",
+                text: "Kolam renang berbentuk persegi panjang memiliki **panjang 10 meter** dan **lebar 6 meter**. Berapakah keliling kolam renang tersebut?",
+                options: ["16 m", "32 m", "48 m", "60 m"],
+                correctIndex: 1, // B
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><rect x="20" y="20" width="120" height="60" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="4" rx="6"/><text x="80" y="14" text-anchor="middle" class="text-[11px] font-bold fill-cyan-600">10 m</text><text x="148" y="55" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">6 m</text></svg>`,
+                explanation: "Keliling = 2 × (10 + 6) = 2 × 16 = **32 m**."
+            },
+            {
+                id: 12,
+                category: "Persegi Panjang",
+                text: "Permukaan meja guru berbentuk persegi panjang dengan **panjang 120 cm** dan **lebar 70 cm**. Hitung keliling permukaan meja tersebut!",
+                options: ["190 cm", "280 cm", "360 cm", "380 cm"],
+                correctIndex: 3, // D
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><rect x="20" y="20" width="120" height="60" fill="#8b5cf6" fill-opacity="0.15" stroke="#8b5cf6" stroke-width="4" rx="6"/><text x="80" y="14" text-anchor="middle" class="text-[11px] font-bold fill-purple-600">120 cm</text><text x="148" y="55" text-anchor="start" class="text-[11px] font-bold fill-purple-600">70 cm</text></svg>`,
+                explanation: "Keliling = 2 × (120 + 70) = 2 × 190 = **380 cm**."
+            },
+
+            // 13 - 18: SEGITIGA
+            {
+                id: 13,
+                category: "Segitiga",
+                text: "Sebuah segitiga sama sisi memiliki panjang salah satu sisinya **12 cm**. Berapakah keliling segitiga tersebut?",
+                options: ["36 cm", "24 cm", "48 cm", "144 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="120" height="110" viewBox="0 0 120 110"><polygon points="15,95 105,95 60,15" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="4" stroke-linejoin="round"/><text x="60" y="108" text-anchor="middle" class="text-[11px] font-bold fill-emerald-600">12 cm (Sama Sisi)</text></svg>`,
+                explanation: "Segitiga sama sisi ketiga sisinya sama panjang. Keliling = 3 × 12 cm = **36 cm**."
+            },
+            {
+                id: 14,
+                category: "Segitiga",
+                text: "Segitiga sama kaki memiliki **panjang alas = 10 cm** dan **panjang kaki = 13 cm**. Keliling segitiga tersebut adalah...",
+                options: ["23 cm", "33 cm", "36 cm", "46 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="120" height="110" viewBox="0 0 120 110"><polygon points="20,95 100,95 60,15" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="4" stroke-linejoin="round"/><text x="60" y="108" text-anchor="middle" class="text-[11px] font-bold fill-emerald-600">10 cm</text><text x="90" y="55" text-anchor="start" class="text-[11px] font-bold fill-emerald-600">13 cm</text></svg>`,
+                explanation: "Segitiga sama kaki punya 2 kaki sama panjang. Keliling = 10 + 13 + 13 = **36 cm**."
+            },
+            {
+                id: 15,
+                category: "Segitiga",
+                text: "Segitiga siku-siku memiliki panjang sisi **9 cm, 12 cm, dan 15 cm**. Berapakah keliling segitiga siku-siku tersebut?",
+                options: ["21 cm", "36 cm", "45 cm", "54 cm"],
+                correctIndex: 1, // B
+                svg: `<svg width="120" height="110" viewBox="0 0 120 110"><polygon points="25,95 100,95 25,20" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="4" stroke-linejoin="round"/><text x="62" y="108" text-anchor="middle" class="text-[11px] font-bold fill-emerald-600">12 cm</text><text x="15" y="60" text-anchor="end" class="text-[11px] font-bold fill-emerald-600">9 cm</text><text x="70" y="50" text-anchor="start" class="text-[11px] font-bold fill-emerald-600">15 cm</text></svg>`,
+                explanation: "Keliling Segitiga = a + b + c = 9 + 12 + 15 = **36 cm**."
+            },
+            {
+                id: 16,
+                category: "Segitiga",
+                text: "Segitiga sembarang memiliki sisi-sisi berukuran **7 cm, 11 cm, dan 14 cm**. Berapakah keliling segitiga tersebut?",
+                options: ["25 cm", "28 cm", "30 cm", "32 cm"],
+                correctIndex: 3, // D
+                svg: `<svg width="120" height="110" viewBox="0 0 120 110"><polygon points="15,95 105,95 40,20" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="4" stroke-linejoin="round"/><text x="60" y="108" text-anchor="middle" class="text-[11px] font-bold fill-emerald-600">14 cm</text></svg>`,
+                explanation: "Keliling = 7 + 11 + 14 = **32 cm**."
+            },
+            {
+                id: 17,
+                category: "Segitiga",
+                text: "Rambu lalu lintas berbentuk segitiga sama sisi memiliki panjang sisi **25 cm**. Keliling rambu lalu lintas tersebut adalah...",
+                options: ["75 cm", "50 cm", "100 cm", "125 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="120" height="110" viewBox="0 0 120 110"><polygon points="15,95 105,95 60,15" fill="#ef4444" fill-opacity="0.15" stroke="#ef4444" stroke-width="4" stroke-linejoin="round"/><text x="60" y="108" text-anchor="middle" class="text-[11px] font-bold fill-rose-600">25 cm</text></svg>`,
+                explanation: "Keliling = 3 × 25 cm = **75 cm**."
+            },
+            {
+                id: 18,
+                category: "Segitiga",
+                text: "Sebuah segitiga sama kaki memiliki **keliling = 40 cm**. Jika panjang **alasnya = 10 cm**, berapa panjang satu sisi kakinya?",
+                options: ["10 cm", "20 cm", "15 cm", "30 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="120" height="110" viewBox="0 0 120 110"><polygon points="20,95 100,95 60,15" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="4" stroke-linejoin="round"/><text x="60" y="60" text-anchor="middle" class="text-xs font-bold fill-emerald-600">K = 40 cm, alas = 10 cm</text></svg>`,
+                explanation: "Total 2 kaki = 40 - 10 = 30 cm. Panjang 1 kaki = 30 ÷ 2 = **15 cm**."
+            },
+
+            // 19 - 23: JAJAR GENJANG
+            {
+                id: 19,
+                category: "Jajar Genjang",
+                text: "Jajar genjang memiliki **panjang alas = 14 cm** dan **sisi miring = 9 cm**. Berapakah keliling jajar genjang tersebut?",
+                options: ["23 cm", "46 cm", "63 cm", "92 cm"],
+                correctIndex: 1, // B
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="35,80 145,80 120,20 10,20" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-width="4" stroke-linejoin="round"/><text x="90" y="96" text-anchor="middle" class="text-[11px] font-bold fill-purple-600">14 cm</text><text x="140" y="50" text-anchor="start" class="text-[11px] font-bold fill-purple-600">9 cm</text></svg>`,
+                explanation: "Keliling Jajar Genjang = 2 × (alas + sisi miring) = 2 × (14 + 9) = 2 × 23 = **46 cm**."
+            },
+            {
+                id: 20,
+                category: "Jajar Genjang",
+                text: "Kerangka kayu berbentuk jajar genjang mempunyai alas **18 cm** dan sisi miring **12 cm**. Keliling kerangka kayu itu adalah...",
+                options: ["30 cm", "45 cm", "50 cm", "60 cm"],
+                correctIndex: 3, // D
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="35,80 145,80 120,20 10,20" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-width="4" stroke-linejoin="round"/><text x="90" y="96" text-anchor="middle" class="text-[11px] font-bold fill-purple-600">18 cm</text><text x="140" y="50" text-anchor="start" class="text-[11px] font-bold fill-purple-600">12 cm</text></svg>`,
+                explanation: "Keliling = 2 × (18 + 12) = 2 × 30 = **60 cm**."
+            },
+            {
+                id: 21,
+                category: "Jajar Genjang",
+                text: "Keliling sebuah jajar genjang adalah **64 cm**. Jika **panjang alasnya = 20 cm**, berapakah panjang sisi miringnya?",
+                options: ["12 cm", "14 cm", "22 cm", "24 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="35,80 145,80 120,20 10,20" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-width="4" stroke-linejoin="round"/><text x="80" y="55" text-anchor="middle" class="text-xs font-bold fill-purple-600">K = 64 cm, a = 20 cm</text></svg>`,
+                explanation: "Alas + Sisi Miring = 64 ÷ 2 = 32 cm. Sisi Miring = 32 - 20 = **12 cm**."
+            },
+            {
+                id: 22,
+                category: "Jajar Genjang",
+                text: "Kebun Pak Doni berbentuk jajar genjang dengan panjang **alas 25 meter** dan **sisi miring 15 meter**. Keliling kebun Pak Doni adalah...",
+                options: ["40 m", "60 m", "80 m", "100 m"],
+                correctIndex: 2, // C
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="35,80 145,80 120,20 10,20" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-width="4" stroke-linejoin="round"/><text x="90" y="96" text-anchor="middle" class="text-[11px] font-bold fill-purple-600">25 m</text><text x="140" y="50" text-anchor="start" class="text-[11px] font-bold fill-purple-600">15 m</text></svg>`,
+                explanation: "Keliling = 2 × (25 + 15) = 2 × 40 = **80 m**."
+            },
+            {
+                id: 23,
+                category: "Jajar Genjang",
+                text: "Sebuah potongan logam jajar genjang mempunyai alas **11 cm** dan sisi miring **8 cm**. Hitung keliling potongan logam tersebut!",
+                options: ["19 cm", "38 cm", "44 cm", "88 cm"],
+                correctIndex: 1, // B
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="35,80 145,80 120,20 10,20" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-width="4" stroke-linejoin="round"/><text x="90" y="96" text-anchor="middle" class="text-[11px] font-bold fill-purple-600">11 cm</text><text x="140" y="50" text-anchor="start" class="text-[11px] font-bold fill-purple-600">8 cm</text></svg>`,
+                explanation: "Keliling = 2 × (11 + 8) = 2 × 19 = **38 cm**."
+            },
+
+            // 24 - 28: TRAPESIUM
+            {
+                id: 24,
+                category: "Trapesium",
+                text: "Trapesium sama kaki memiliki **sisi atas = 10 cm**, **sisi bawah = 20 cm**, dan **sisi kaki = 13 cm**. Keliling trapesium tersebut adalah...",
+                options: ["43 cm", "50 cm", "53 cm", "56 cm"],
+                correctIndex: 3, // D
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="20,80 140,80 110,20 50,20" fill="#f43f5e" fill-opacity="0.15" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/><text x="80" y="14" text-anchor="middle" class="text-[11px] font-bold fill-rose-600">10 cm</text><text x="80" y="96" text-anchor="middle" class="text-[11px] font-bold fill-rose-600">20 cm</text><text x="132" y="50" text-anchor="start" class="text-[11px] font-bold fill-rose-600">13 cm</text></svg>`,
+                explanation: "Trapesium sama kaki punya 2 kaki sama panjang (13 cm). Keliling = 10 + 20 + 13 + 13 = **56 cm**."
+            },
+            {
+                id: 25,
+                category: "Trapesium",
+                text: "Trapesium siku-siku memiliki empat sisi berukuran **12 cm, 8 cm, 10 cm, dan 6 cm**. Berapakah keliling trapesium tersebut?",
+                options: ["36 cm", "30 cm", "40 cm", "48 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="30,80 130,80 100,20 30,20" fill="#f43f5e" fill-opacity="0.15" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/><text x="80" y="96" text-anchor="middle" class="text-[11px] font-bold fill-rose-600">12 cm</text></svg>`,
+                explanation: "Keliling Trapesium = jumlahkan seluruh sisi = 12 + 8 + 10 + 6 = **36 cm**."
+            },
+            {
+                id: 26,
+                category: "Trapesium",
+                text: "Sisi-sisi sebuah trapesium sembarang berturut-turut adalah **14 cm, 9 cm, 7 cm, dan 8 cm**. Keliling trapesium tersebut adalah...",
+                options: ["30 cm", "35 cm", "38 cm", "42 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="20,80 140,80 110,25 45,25" fill="#f43f5e" fill-opacity="0.15" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/><text x="80" y="96" text-anchor="middle" class="text-[11px] font-bold fill-rose-600">14 cm</text></svg>`,
+                explanation: "Keliling = 14 + 9 + 7 + 8 = **38 cm**."
+            },
+            {
+                id: 27,
+                category: "Trapesium",
+                text: "Atap rumah berbentuk trapesium sama kaki dengan panjang **sisi atas 6 meter**, **sisi bawah 14 meter**, dan **sisi miring 5 meter**. Keliling atap tersebut adalah...",
+                options: ["25 m", "30 m", "35 m", "40 m"],
+                correctIndex: 1, // B
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="20,80 140,80 110,20 50,20" fill="#f43f5e" fill-opacity="0.15" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/><text x="80" y="14" text-anchor="middle" class="text-[11px] font-bold fill-rose-600">6 m</text><text x="80" y="96" text-anchor="middle" class="text-[11px] font-bold fill-rose-600">14 m</text></svg>`,
+                explanation: "Keliling = 6 + 14 + 5 + 5 = **30 m**."
+            },
+            {
+                id: 28,
+                category: "Trapesium",
+                text: "Areal tanaman obat di sekolah berbentuk trapesium dengan panjang keempat sisinya adalah **8 m, 15 m, 12 m, dan 13 m**. Keliling areal tanaman tersebut adalah...",
+                options: ["38 m", "42 m", "45 m", "48 m"],
+                correctIndex: 3, // D
+                svg: `<svg width="160" height="100" viewBox="0 0 160 100"><polygon points="20,80 140,80 100,20 40,20" fill="#f43f5e" fill-opacity="0.15" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/><text x="80" y="96" text-anchor="middle" class="text-[11px] font-bold fill-rose-600">15 m</text></svg>`,
+                explanation: "Keliling = 8 + 15 + 12 + 13 = **48 m**."
+            },
+
+            // 29 - 34: LAYANG-LAYANG
+            {
+                id: 29,
+                category: "Layang-Layang",
+                text: "Sebuah layang-layang mempunyai **pasangan sisi pendek = 12 cm** dan **pasangan sisi panjang = 18 cm**. Hitunglah keliling layang-layang tersebut!",
+                options: ["60 cm", "30 cm", "50 cm", "72 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 95,45 60,110 25,45" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="4" stroke-linejoin="round"/><text x="82" y="25" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">12 cm</text><text x="82" y="80" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">18 cm</text></svg>`,
+                explanation: "Keliling Layang-Layang = 2 × (sisi pendek + sisi panjang) = 2 × (12 + 18) = 2 × 30 = **60 cm**."
+            },
+            {
+                id: 30,
+                category: "Layang-Layang",
+                text: "Keliling sebuah layang-layang adalah **70 cm**. Jika **sisi pendeknya = 15 cm**, berapakah panjang sisi panjangnya?",
+                options: ["15 cm", "18 cm", "20 cm", "25 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 95,45 60,110 25,45" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="4" stroke-linejoin="round"/><text x="60" y="60" text-anchor="middle" class="text-xs font-bold fill-cyan-600">K = 70 cm</text></svg>`,
+                explanation: "Sisi Pendek + Sisi Panjang = 70 ÷ 2 = 35 cm. Sisi Panjang = 35 - 15 = **20 cm**."
+            },
+            {
+                id: 31,
+                category: "Layang-Layang",
+                text: "Budi membuat layang-layang mainan dengan ukuran pasang sisinya **9 cm dan 14 cm**. Keliling layang-layang Budi adalah...",
+                options: ["23 cm", "46 cm", "50 cm", "92 cm"],
+                correctIndex: 1, // B
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 95,45 60,110 25,45" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="4" stroke-linejoin="round"/><text x="82" y="25" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">9 cm</text><text x="82" y="80" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">14 cm</text></svg>`,
+                explanation: "Keliling = 2 × (9 + 14) = 2 × 23 = **46 cm**."
+            },
+            {
+                id: 32,
+                category: "Layang-Layang",
+                text: "Hiasan dinding layang-layang memiliki panjang sisi-sisinya **16 cm dan 24 cm**. Berapakah keliling hiasan tersebut?",
+                options: ["40 cm", "60 cm", "70 cm", "80 cm"],
+                correctIndex: 3, // D
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 95,45 60,110 25,45" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="4" stroke-linejoin="round"/><text x="82" y="25" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">16 cm</text><text x="82" y="80" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">24 cm</text></svg>`,
+                explanation: "Keliling = 2 × (16 + 24) = 2 × 40 = **80 cm**."
+            },
+            {
+                id: 33,
+                category: "Layang-Layang",
+                text: "Lani memotong kertas warna berbentuk layang-layang dengan pasangan sisi **21 cm dan 29 cm**. Keliling kertas warna tersebut adalah...",
+                options: ["100 cm", "50 cm", "80 cm", "120 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 95,45 60,110 25,45" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="4" stroke-linejoin="round"/><text x="82" y="25" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">21 cm</text><text x="82" y="80" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">29 cm</text></svg>`,
+                explanation: "Keliling = 2 × (21 + 29) = 2 × 50 = **100 cm**."
+            },
+            {
+                id: 34,
+                category: "Layang-Layang",
+                text: "Bambu rangka layang-layang memiliki panjang sisi berurutan **7 cm dan 13 cm**. Keliling rangka tersebut adalah...",
+                options: ["20 cm", "30 cm", "40 cm", "50 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 95,45 60,110 25,45" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="4" stroke-linejoin="round"/><text x="82" y="25" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">7 cm</text><text x="82" y="80" text-anchor="start" class="text-[11px] font-bold fill-cyan-600">13 cm</text></svg>`,
+                explanation: "Keliling = 2 × (7 + 13) = 2 × 20 = **40 cm**."
+            },
+
+            // 35 - 40: BELAH KETUPAT
+            {
+                id: 35,
+                category: "Belah Ketupat",
+                text: "Belah ketupat memiliki panjang **sisi = 14 cm**. Berapakah keliling belah ketupat tersebut?",
+                options: ["28 cm", "56 cm", "70 cm", "96 cm"],
+                correctIndex: 1, // B
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 105,60 60,110 15,60" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="4" stroke-linejoin="round"/><text x="88" y="32" text-anchor="start" class="text-[11px] font-bold fill-teal-600">14 cm</text></svg>`,
+                explanation: "Semua 4 sisi belah ketupat sama panjang. Keliling = 4 × 14 cm = **56 cm**."
+            },
+            {
+                id: 36,
+                category: "Belah Ketupat",
+                text: "Keliling sebuah belah ketupat adalah **88 cm**. Berapakah panjang sisinya?",
+                options: ["18 cm", "20 cm", "21 cm", "22 cm"],
+                correctIndex: 3, // D
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 105,60 60,110 15,60" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="4" stroke-linejoin="round"/><text x="60" y="60" text-anchor="middle" class="text-xs font-bold fill-teal-600">K = 88 cm</text></svg>`,
+                explanation: "Sisi = Keliling ÷ 4 = 88 cm ÷ 4 = **22 cm**."
+            },
+            {
+                id: 37,
+                category: "Belah Ketupat",
+                text: "Siti menghias taplak meja belah ketupat yang panjang sisinya **45 cm**. Keliling taplak meja tersebut adalah...",
+                options: ["180 cm", "135 cm", "90 cm", "225 cm"],
+                correctIndex: 0, // A
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 105,60 60,110 15,60" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="4" stroke-linejoin="round"/><text x="88" y="32" text-anchor="start" class="text-[11px] font-bold fill-teal-600">45 cm</text></svg>`,
+                explanation: "Keliling = 4 × 45 cm = **180 cm**."
+            },
+            {
+                id: 38,
+                category: "Belah Ketupat",
+                text: "Sebuah ketupat hiasan Hari Raya berbentuk belah ketupat dengan panjang sisi **16 cm**. Keliling ketupat hiasan itu adalah...",
+                options: ["32 cm", "48 cm", "64 cm", "80 cm"],
+                correctIndex: 2, // C
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 105,60 60,110 15,60" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="4" stroke-linejoin="round"/><text x="88" y="32" text-anchor="start" class="text-[11px] font-bold fill-teal-600">16 cm</text></svg>`,
+                explanation: "Keliling = 4 × 16 cm = **64 cm**."
+            },
+            {
+                id: 39,
+                category: "Belah Ketupat",
+                text: "Taman rumput kota berbentuk belah ketupat dengan panjang sisi **25 meter**. Keliling taman rumput kota adalah...",
+                options: ["75 m", "100 m", "125 m", "150 m"],
+                correctIndex: 1, // B
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 105,60 60,110 15,60" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="4" stroke-linejoin="round"/><text x="88" y="32" text-anchor="start" class="text-[11px] font-bold fill-teal-600">25 m</text></svg>`,
+                explanation: "Keliling = 4 × 25 m = **100 m**."
+            },
+            {
+                id: 40,
+                category: "Belah Ketupat",
+                text: "Cermin hias di ruang tamu berbentuk belah ketupat dengan **sisi 32 cm**. Berapakah keliling cermin hias tersebut?",
+                options: ["64 cm", "96 cm", "120 cm", "128 cm"],
+                correctIndex: 3, // D
+                svg: `<svg width="120" height="120" viewBox="0 0 120 120"><polygon points="60,10 105,60 60,110 15,60" fill="#14b8a6" fill-opacity="0.15" stroke="#14b8a6" stroke-width="4" stroke-linejoin="round"/><text x="88" y="32" text-anchor="start" class="text-[11px] font-bold fill-teal-600">32 cm</text></svg>`,
+                explanation: "Keliling = 4 × 32 cm = **128 cm**. Selamat kamu telah menyelesaikan seluruh soal!"
+            }
+        ];
+
+        /* LocalStorage Persistence State Key */
+        const STORAGE_KEY = 'keliling_bangun_datar_sd4_quiz_answers_v2';
+
+        /* Global Application State Variables */
+        let currentIdx = 0;
+        let userAnswers = {}; // Format: { questionId: selectedIndex }
+        let filteredQuestionIndices = [];
+
+        /* Initialize State on Load */
+        function initApp() {
+            loadSavedAnswers();
+            filterQuestions();
+            renderQuestionNumberGrid();
+            displayQuestion(currentIdx);
+            updateStats();
+        }
+
+        /* Load stored answers from localStorage */
+        function loadSavedAnswers() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    userAnswers = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error("Gagal membaca storage", e);
+                userAnswers = {};
+            }
+        }
+
+        /* Save answers to localStorage */
+        function saveAnswers() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(userAnswers));
+                showSaveStatusBadge();
+            } catch (e) {
+                console.error("Gagal menyimpan ke storage", e);
+            }
+        }
+
+        /* Visual indicator for auto-save */
+        function showSaveStatusBadge() {
+            const badge = document.getElementById('save-status-badge');
+            if (badge) {
+                badge.innerText = "💾 Otomatis Tersimpan";
+                badge.className = "bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-xs flex items-center shadow";
+            }
+        }
+
+        /* Filter Questions based on Shape selection */
+        function filterQuestions() {
+            const shapeFilter = document.getElementById('filter-shape').value;
+            filteredQuestionIndices = [];
+
+            questions.forEach((q, idx) => {
+                if (shapeFilter === 'all' || q.category === shapeFilter) {
+                    filteredQuestionIndices.push(idx);
+                }
+            });
+
+            // If current question index is not in filter, jump to first in filter
+            if (!filteredQuestionIndices.includes(currentIdx)) {
+                currentIdx = filteredQuestionIndices[0] || 0;
+            }
+
+            renderQuestionNumberGrid();
+            displayQuestion(currentIdx);
+        }
+
+        /* Render 1-40 Question Map Grid */
+        function renderQuestionNumberGrid() {
+            const grid = document.getElementById('number-grid');
+            grid.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `num-btn w-full py-2 rounded-xl font-bold text-xs border transition flex items-center justify-center `;
+                btn.innerText = idx + 1;
+
+                // Check answered status
+                if (userAnswers.hasOwnProperty(q.id)) {
+                    const userChoice = userAnswers[q.id];
+                    if (userChoice === q.correctIndex) {
+                        btn.classList.add('correct');
+                    } else {
+                        btn.classList.add('wrong');
+                    }
+                } else {
+                    btn.classList.add('bg-slate-100', 'text-slate-700', 'border-slate-300', 'hover:bg-slate-200');
+                }
+
+                // Active highlight
+                if (idx === currentIdx) {
+                    btn.classList.add('ring-2', 'ring-indigo-600', 'ring-offset-1');
+                }
+
+                btn.onclick = () => {
+                    currentIdx = idx;
+                    displayQuestion(currentIdx);
+                    renderQuestionNumberGrid();
+                };
+
+                grid.appendChild(btn);
+            });
+        }
+
+        /* Display Current Question Details */
+        function displayQuestion(index) {
+            const q = questions[index];
+            if (!q) return;
+
+            document.getElementById('q-number-tag').innerText = `Soal #${q.id} dari 40`;
+            document.getElementById('q-category-tag').innerText = q.category;
+            
+            // Format bold markdown text in question
+            const formattedText = q.text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-950 font-bold">$1</strong>');
+            document.getElementById('q-text').innerHTML = formattedText;
+
+            // Render SVG illustration
+            document.getElementById('q-svg-container').innerHTML = q.svg || '';
+
+            // Render Option Buttons
+            const optionsBox = document.getElementById('options-container');
+            optionsBox.innerHTML = '';
+
+            const isAnswered = userAnswers.hasOwnProperty(q.id);
+            const userChoice = userAnswers[q.id];
+
+            const optionPrefixes = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((optText, optIdx) => {
+                const optBtn = document.createElement('button');
+                optBtn.className = "w-full text-left p-4 rounded-2xl border-2 font-semibold text-sm transition flex items-center justify-between shadow-sm ";
+
+                if (!isAnswered) {
+                    optBtn.className += "bg-white hover:bg-indigo-50 border-slate-200 text-slate-800 hover:border-indigo-300 cursor-pointer";
+                    optBtn.onclick = () => selectOption(q.id, optIdx);
+                } else {
+                    // Lock options and highlight
+                    if (optIdx === q.correctIndex) {
+                        optBtn.className += "bg-emerald-100 border-emerald-500 text-emerald-950 font-bold";
+                    } else if (optIdx === userChoice) {
+                        optBtn.className += "bg-rose-100 border-rose-500 text-rose-950 font-bold";
+                    } else {
+                        optBtn.className += "bg-slate-50 border-slate-200 text-slate-400 opacity-60 cursor-not-allowed";
+                    }
+                }
+
+                const prefixBadge = `<span class="inline-block w-7 h-7 rounded-lg text-center leading-7 text-xs font-bold mr-3 ${isAnswered && optIdx === q.correctIndex ? 'bg-emerald-600 text-white' : (isAnswered && optIdx === userChoice ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-700')}">${optionPrefixes[optIdx]}</span>`;
+                
+                let iconStatus = '';
+                if (isAnswered) {
+                    if (optIdx === q.correctIndex) {
+                        iconStatus = '<span class="text-emerald-600 text-lg font-black">✓ Benar</span>';
+                    } else if (optIdx === userChoice) {
+                        iconStatus = '<span class="text-rose-600 text-lg font-black">✗ Salahmu</span>';
+                    }
+                }
+
+                optBtn.innerHTML = `<div class="flex items-center">${prefixBadge}<span>${optText}</span></div>${iconStatus}`;
+                optionsBox.appendChild(optBtn);
+            });
+
+            // Update Status Tag & Feedback Box
+            const statusTag = document.getElementById('q-status-tag');
+            const feedbackBox = document.getElementById('feedback-box');
+
+            if (isAnswered) {
+                const isCorrect = userChoice === q.correctIndex;
+                statusTag.innerText = isCorrect ? '✅ Dijawab Benar' : '❌ Dijawab Salah';
+                statusTag.className = isCorrect ? 'text-xs font-bold text-emerald-600' : 'text-xs font-bold text-rose-600';
+
+                feedbackBox.classList.remove('hidden');
+                if (isCorrect) {
+                    feedbackBox.className = "mt-6 p-5 rounded-2xl text-sm font-medium border bg-emerald-50 border-emerald-200 text-emerald-900 block space-y-2";
+                    feedbackBox.innerHTML = `<div class="font-bold text-base flex items-center gap-2">🎉 Hebat! Jawaban Kamu BENAR!</div><div><strong>Cara Menghitung:</strong> ${q.explanation}</div>`;
+                } else {
+                    feedbackBox.className = "mt-6 p-5 rounded-2xl text-sm font-medium border bg-rose-50 border-rose-200 text-rose-900 block space-y-2";
+                    feedbackBox.innerHTML = `<div class="font-bold text-base flex items-center gap-2">❌ Waduh, Jawaban Kamu Masih KURANG TEPAT</div><div><strong>Jawaban yang Benar:</strong> Opsi ${optionPrefixes[q.correctIndex]} (${q.options[q.correctIndex]})</div><div><strong>Pembahasan:</strong> ${q.explanation}</div>`;
+                }
+            } else {
+                statusTag.innerText = 'Belum Dijawab';
+                statusTag.className = 'text-xs font-bold text-slate-400';
+                feedbackBox.classList.add('hidden');
+            }
+
+            // Update Prev/Next Buttons
+            document.getElementById('btn-prev').disabled = (index === 0);
+            document.getElementById('btn-prev').style.opacity = (index === 0) ? '0.5' : '1';
+
+            document.getElementById('btn-next').disabled = (index === questions.length - 1);
+            document.getElementById('btn-next').style.opacity = (index === questions.length - 1) ? '0.5' : '1';
+        }
+
+        /* User Selects an Option */
+        function selectOption(questionId, selectedIdx) {
+            userAnswers[questionId] = selectedIdx;
+            saveAnswers();
+            
+            const q = questions.find(item => item.id === questionId);
+            const isCorrect = q && q.correctIndex === selectedIdx;
+
+            // Trigger confetti if correct!
+            if (isCorrect && typeof confetti === 'function') {
+                confetti({
+                    particleCount: 40,
+                    spread: 60,
+                    origin: { y: 0.7 }
+                });
+            }
+
+            displayQuestion(currentIdx);
+            renderQuestionNumberGrid();
+            updateStats();
+        }
+
+        /* Navigation Next/Prev Question */
+        function changeQuestion(step) {
+            const nextIndex = currentIdx + step;
+            if (nextIndex >= 0 && nextIndex < questions.length) {
+                currentIdx = nextIndex;
+                displayQuestion(currentIdx);
+                renderQuestionNumberGrid();
+            }
+        }
+
+        /* Update Dashboard Statistics */
+        function updateStats() {
+            const totalQuestions = questions.length;
+            const answeredCount = Object.keys(userAnswers).length;
+            
+            let correctCount = 0;
+            let wrongCount = 0;
+
+            questions.forEach(q => {
+                if (userAnswers.hasOwnProperty(q.id)) {
+                    if (userAnswers[q.id] === q.correctIndex) {
+                        correctCount++;
+                    } else {
+                        wrongCount++;
+                    }
+                }
+            });
+
+            const scoreValue = ((correctCount / totalQuestions) * 100).toFixed(1);
+
+            document.getElementById('stat-answered').innerText = `${answeredCount} / ${totalQuestions}`;
+            document.getElementById('stat-correct').innerText = correctCount;
+            document.getElementById('stat-wrong').innerText = wrongCount;
+            document.getElementById('stat-score').innerText = scoreValue;
+
+            // Mascot text update
+            const mascotText = document.getElementById('mascot-text');
+            if (answeredCount === 0) {
+                mascotText.innerText = '"Ayo mulai jawab soal nomor 1! Aku akan mencatat nilaimu."';
+            } else if (answeredCount === totalQuestions) {
+                mascotText.innerText = `"Luar biasa! Kamu sudah menyelesaikan seluruh 40 soal dengan nilai ${scoreValue}!"`;
+            } else {
+                mascotText.innerText = `"Keren! Kamu sudah menyelesaikan ${answeredCount} soal. Lanjutkan!"`;
+            }
+        }
+
+        /* Reset Modal Control */
+        function openResetModal() {
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+
+        function closeResetModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+        }
+
+        function confirmReset() {
+            userAnswers = {};
+            localStorage.removeItem(STORAGE_KEY);
+            closeResetModal();
+            currentIdx = 0;
+            initApp();
+        }
+
+        /* Initialize application when DOM is ready */
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
